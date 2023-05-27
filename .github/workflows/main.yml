@@ -1,0 +1,63 @@
+on: workflow_dispatch
+
+jobs:
+  build:
+    name: build app on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        jdk: [19]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.3.0'
+          java-version: ${{ matrix.jdk }}
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'true'
+          
+      - name: Print JAVA_HOME
+        run: echo $JAVA_HOME
+    
+      - name: Install sdkman and jbang
+        if: matrix.os != 'windows-latest'
+        uses: sdkman/sdkman-action@main
+        id: sdkman
+        with:
+          candidate: jbang
+      
+      - name: Install chocolatey and jbang
+        if: matrix.os == 'windows-latest'
+        uses: crazy-max/ghaction-chocolatey@v2.1.0
+        with:
+          args: install jbang
+        
+      - name: Run app
+        if: matrix.os != 'windows-latest'
+        run: jbang --verbose export native main.java
+      - name: Run app
+        if: matrix.os == 'windows-latest'
+        continue-on-error: true
+        run: jbang --verbose export native main.java
+      # run command twice to solve Fatal error: java.lang.IllegalArgumentException: 'other' has different root  
+      - name: Run app again
+        if: matrix.os == 'windows-latest'
+        run: jbang --verbose export native main.java
+        
+      - name: Upload binary
+        if: matrix.os != 'windows-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: main-${{ matrix.os }}
+          path: main
+          
+      - name: Upload binary
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: main-${{ matrix.os }}.exe
+          path: main.exe
+      
