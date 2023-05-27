@@ -5,10 +5,6 @@ import io.helidon.config.Config;
 import io.helidon.config.ConfigSources;
 import model.Person;
 
-//JAVA 20
-//NATIVE_OPTIONS --no-fallback -H:+ReportExceptionStackTraces --enable-preview --enable-monitoring
-//COMPILE_OPTIONS --enable-preview --release 20
-//RUNTIME_OPTIONS --enable-preview -XX:+UseZGC -XX:NativeMemoryTracking=summary -XX:+HeapDumpOnOutOfMemoryError -XX:StartFlightRecording=filename=jfr/,path-to-gc-roots=true,jdk.ObjectCount#enabled=true
 //DEPS io.helidon.config:helidon-config:3.2.1
 //DEPS io.helidon.config:helidon-config-hocon:3.2.1
 //DEPS io.helidon.config:helidon-config-object-mapping:3.2.1
